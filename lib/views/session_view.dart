@@ -3,7 +3,8 @@ import 'package:kanji_app/model/kotoba.dart';
 
 class SessionView extends StatefulWidget {
   final List<Kotoba> kotobaList;
-  final defaultStyle = TextStyle(color: Colors.white, fontSize: 15);
+  final defaultStyle =
+      TextStyle(color: Colors.white, fontSize: 15, locale: Locale('ja-JP'));
   final correctStyle = TextStyle(color: Colors.green[700], fontSize: 20);
   final wrongStyle = TextStyle(color: Colors.redAccent[700], fontSize: 20);
 
@@ -14,7 +15,7 @@ class SessionView extends StatefulWidget {
 }
 
 class _SessionViewState extends State<SessionView> {
-  int kotobasNumber;
+  int kotobaNumber;
   int current;
   bool correct;
   int correctCount;
@@ -25,7 +26,7 @@ class _SessionViewState extends State<SessionView> {
   @override
   void initState() {
     super.initState();
-    kotobasNumber = widget.kotobaList.length;
+    kotobaNumber = widget.kotobaList.length;
     current = 0;
     correct = true;
     correctCount = 0;
@@ -40,7 +41,9 @@ class _SessionViewState extends State<SessionView> {
     var currentKotoba = !finished ? widget.kotobaList[current] : previousKotoba;
 
     var style = correct ? widget.correctStyle : widget.wrongStyle;
-    var child = current < widget.kotobaList.length ? buildKotobaBody(currentKotoba, previousKotoba, style) : buildStatsBody();
+    var child = current < widget.kotobaList.length
+        ? buildKotobaBody(currentKotoba, previousKotoba, style)
+        : buildStatsBody();
 
     return Container(
       child: Center(
@@ -58,10 +61,11 @@ class _SessionViewState extends State<SessionView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Stats', style: widget.defaultStyle.copyWith(color: Colors.lightGreenAccent)),
-            Text('Correct:$correctCount', style: widget.defaultStyle),
-            Text('Wrong:$wrongCount', style: widget.defaultStyle),
-            Text('Acc:${(accuracy*100).toStringAsPrecision(2)}%', style: widget.defaultStyle),
+            Text('${current+1}/$kotobaNumber', style: widget.defaultStyle.copyWith(color: Colors.lightGreenAccent)),
+            Text('Correct: $correctCount', style: widget.defaultStyle),
+            Text('Wrong: $wrongCount', style: widget.defaultStyle),
+            Text('Acc: ${(accuracy * 100).toStringAsPrecision(2)}%',
+                style: widget.defaultStyle),
           ],
         ),
         width: double.infinity,
@@ -70,53 +74,84 @@ class _SessionViewState extends State<SessionView> {
     );
   }
 
-  Widget buildKotobaBody(Kotoba currentKotoba, Kotoba previousKotoba, TextStyle style) {
+  Widget buildKotobaBody(
+      Kotoba currentKotoba, Kotoba previousKotoba, TextStyle style) {
     var focusNode = FocusNode();
     var textController = TextEditingController();
 
     return Column(
-        children: <Widget>[
-          buildStatsBody(),
-          Card(
-            color: Colors.blueAccent,
-            elevation: 15,
-            shadowColor: Colors.blueGrey[600],
-            child: Container(
-              //height: 200,
-              child: Center(child: Text(currentKotoba.kanji, style: TextStyle(fontSize: 100, color: Colors.white),)),
-              width: 300,
+      children: <Widget>[
+        buildStatsBody(),
+        Card(
+          color: Colors.blueAccent,
+          elevation: 15,
+          shadowColor: Colors.blueGrey[600],
+          child: Container(
+            child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: Text(
+              currentKotoba.kanji,
+              style: widget.defaultStyle
+                    .copyWith(fontSize: 100, color: Colors.white),
             ),
+                )),
+            //width: 300,
           ),
-          TextField(
-            onSubmitted: (answer) {
-              _submitAnswer(answer, currentKotoba.hiragana);
-              textController.clear();
-              focusNode.requestFocus();
-            },
-            autocorrect: false,
-            autofocus: true,
-            textAlign: TextAlign.center,
-            focusNode: focusNode,
-            controller: textController,
-          ),
-          if (current>0) Text(correct ? 'CORRECT!' : 'WRONG!', style: style.copyWith(fontWeight: FontWeight.bold)),
-          Text(previousKotoba?.hiragana ?? '', style: style),
-          Text(previousKotoba?.english ?? '', style: style),
-          Text(previousKotoba?.example ?? '', style: style),
-        ],
-      );
+        ),
+        TextField(
+          onSubmitted: (answer) {
+            _submitAnswer(answer, currentKotoba.hiragana);
+            textController.clear();
+            focusNode.requestFocus();
+          },
+          autocorrect: false,
+          autofocus: true,
+          textAlign: TextAlign.center,
+          focusNode: focusNode,
+          controller: textController,
+        ),
+        if (current > 0)
+          Text(correct ? 'CORRECT!' : 'WRONG!',
+              style: style.copyWith(fontWeight: FontWeight.bold)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (current > 0) Card(
+              margin: EdgeInsets.all(5),
+              elevation: 5,
+              color: Colors.amberAccent,
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Text(previousKotoba?.kanji ?? '', style: style.copyWith(fontWeight: FontWeight.bold)),
+              ),
+            ),
+            Text(previousKotoba?.hiragana ?? '', style: style),
+          ],
+        ),
+        Text(previousKotoba?.english ?? '', style: style),
+        Text(previousKotoba?.example ?? '', style: style),
+      ],
+    );
   }
 
-  void _submitAnswer(String submmitedAnswer, String correctAnswer) {
-    setState(() {
-      correct = submmitedAnswer == correctAnswer;
-      if (correct) correctCount+=1; else wrongCount+=1;
+  void _submitAnswer(String submittedAnswer, String correctAnswer) {
+    if (submittedAnswer == "") return;
 
-      accuracy = correctCount/kotobasNumber;
+    setState(() {
+      correct = submittedAnswer == correctAnswer;
+      if (correct)
+        correctCount += 1;
+      else
+        wrongCount += 1;
+
+      accuracy = correctCount / kotobaNumber;
       current += 1;
-      
-      if (current == kotobasNumber) finished = true;
+
+      if (current == kotobaNumber) {
+        finished = true;
+        current -= 1;
+      }
     });
-    print(widget.kotobaList[current].kanji);
   }
 }
