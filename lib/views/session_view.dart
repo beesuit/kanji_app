@@ -41,7 +41,7 @@ class _SessionViewState extends State<SessionView> {
     var currentKotoba = !finished ? widget.kotobaList[current] : previousKotoba;
 
     var style = correct ? widget.correctStyle : widget.wrongStyle;
-    var child = current < widget.kotobaList.length
+    var child = !finished
         ? buildKotobaBody(currentKotoba, previousKotoba, style)
         : buildStatsBody();
 
@@ -61,7 +61,9 @@ class _SessionViewState extends State<SessionView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('${current+1}/$kotobaNumber', style: widget.defaultStyle.copyWith(color: Colors.lightGreenAccent)),
+            Text('${current + 1}/$kotobaNumber',
+                style: widget.defaultStyle
+                    .copyWith(color: Colors.lightGreenAccent)),
             Text('Correct: $correctCount', style: widget.defaultStyle),
             Text('Wrong: $wrongCount', style: widget.defaultStyle),
             Text('Acc: ${(accuracy * 100).toStringAsPrecision(2)}%',
@@ -89,13 +91,13 @@ class _SessionViewState extends State<SessionView> {
           child: Container(
             child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: Text(
-              currentKotoba.kanji,
-              style: widget.defaultStyle
+              padding: const EdgeInsets.all(3),
+              child: Text(
+                currentKotoba.kanji,
+                style: widget.defaultStyle
                     .copyWith(fontSize: 100, color: Colors.white),
-            ),
-                )),
+              ),
+            )),
             //width: 300,
           ),
         ),
@@ -117,15 +119,17 @@ class _SessionViewState extends State<SessionView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (current > 0) Card(
-              margin: EdgeInsets.all(5),
-              elevation: 5,
-              color: Colors.amberAccent,
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Text(previousKotoba?.kanji ?? '', style: style.copyWith(fontWeight: FontWeight.bold)),
+            if (current > 0)
+              Card(
+                margin: EdgeInsets.all(5),
+                elevation: 5,
+                color: Colors.amberAccent,
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text(previousKotoba?.kanji ?? '',
+                      style: style.copyWith(fontWeight: FontWeight.bold)),
+                ),
               ),
-            ),
             Text(previousKotoba?.hiragana ?? '', style: style),
           ],
         ),
