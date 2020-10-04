@@ -43,7 +43,7 @@ class _SessionViewState extends State<SessionView> {
     var style = correct ? widget.correctStyle : widget.wrongStyle;
     var child = !finished
         ? buildKotobaBody(currentKotoba, previousKotoba, style)
-        : buildStatsBody();
+        : buildStatsBar();
 
     return Container(
       child: Center(
@@ -52,22 +52,26 @@ class _SessionViewState extends State<SessionView> {
     );
   }
 
-  Widget buildStatsBody() {
+  Widget buildStatsBar() {
     return Card(
       color: Colors.deepPurple,
       elevation: 15,
       shadowColor: Colors.blueGrey[600],
       child: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
+            Icon(Icons.translate, color: Colors.white),
             Text('${current + 1}/$kotobaNumber',
                 style: widget.defaultStyle
                     .copyWith(color: Colors.lightGreenAccent)),
-            Text('Correct: $correctCount', style: widget.defaultStyle),
-            Text('Wrong: $wrongCount', style: widget.defaultStyle),
-            Text('Acc: ${(accuracy * 100).toStringAsPrecision(2)}%',
-                style: widget.defaultStyle),
+            Icon(Icons.check_circle, color: Colors.lightGreenAccent),
+            Text('$correctCount', style: widget.defaultStyle.copyWith(color: Colors.lightGreenAccent)),
+            Icon(Icons.clear, color: Colors.redAccent,),
+            Text('$wrongCount', style: widget.defaultStyle.copyWith(color: Colors.redAccent)),
+            Icon(Icons.data_usage, color:Colors.white),
+            Text('${(accuracy * 100).toStringAsPrecision(2)}%',
+                style: widget.defaultStyle.copyWith(color: Colors.lightGreenAccent)),
           ],
         ),
         width: double.infinity,
@@ -83,7 +87,7 @@ class _SessionViewState extends State<SessionView> {
 
     return Column(
       children: <Widget>[
-        buildStatsBody(),
+        buildStatsBar(),
         Card(
           color: Colors.blueAccent,
           elevation: 15,
