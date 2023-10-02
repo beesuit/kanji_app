@@ -8,20 +8,22 @@ class SessionView extends StatefulWidget {
   final correctStyle = TextStyle(color: Colors.green[700], fontSize: 20);
   final wrongStyle = TextStyle(color: Colors.redAccent[700], fontSize: 20);
 
-  SessionView({Key key, @required this.kotobaList}) : super(key: key);
+  SessionView({required Key key, required this.kotobaList}) : super(key: key);
 
   @override
   _SessionViewState createState() => _SessionViewState();
 }
 
 class _SessionViewState extends State<SessionView> {
-  int kotobaNumber;
-  int current;
-  bool correct;
-  int correctCount;
-  int wrongCount;
-  double accuracy;
-  bool finished;
+  late int kotobaNumber;
+  late int current;
+  late bool correct;
+  late int correctCount;
+  late int wrongCount;
+  late double accuracy;
+  late bool finished;
+  Kotoba emptyKotoba =
+      Kotoba(kanji: '', hiragana: '', english: '', example: '');
 
   @override
   void initState() {
@@ -37,7 +39,8 @@ class _SessionViewState extends State<SessionView> {
 
   @override
   Widget build(BuildContext context) {
-    var previousKotoba = current > 0 ? widget.kotobaList[current - 1] : null;
+    var previousKotoba =
+        current > 0 ? widget.kotobaList[current - 1] : emptyKotoba;
     var currentKotoba = !finished ? widget.kotobaList[current] : previousKotoba;
 
     var style = correct ? widget.correctStyle : widget.wrongStyle;
@@ -66,8 +69,10 @@ class _SessionViewState extends State<SessionView> {
                     .copyWith(color: Colors.lightGreenAccent)),
             Text('Correct: $correctCount', style: widget.defaultStyle),
             Text('Wrong: $wrongCount', style: widget.defaultStyle),
-            Text('Acc: ${(accuracy * 100).toStringAsPrecision(2)}%',
+            Text(
+                'Acc: ${accuracy == 1 ? '100' : (accuracy * 100).toStringAsFixed(2)}%',
                 style: widget.defaultStyle),
+            //Text('Acc: ${(accuracy * 100)}%', style: widget.defaultStyle),
           ],
         ),
         width: double.infinity,
@@ -126,15 +131,15 @@ class _SessionViewState extends State<SessionView> {
                 color: Colors.amberAccent,
                 child: Padding(
                   padding: const EdgeInsets.all(5),
-                  child: Text(previousKotoba?.kanji ?? '',
+                  child: Text(previousKotoba.kanji ?? '',
                       style: style.copyWith(fontWeight: FontWeight.bold)),
                 ),
               ),
-            Text(previousKotoba?.hiragana ?? '', style: style),
+            Text(previousKotoba.hiragana ?? '', style: style),
           ],
         ),
-        Text(previousKotoba?.english ?? '', style: style),
-        Text(previousKotoba?.example ?? '', style: style),
+        Text(previousKotoba.english ?? '', style: style),
+        Text(previousKotoba.example ?? '', style: style),
       ],
     );
   }

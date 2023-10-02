@@ -16,7 +16,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: 'home',
       routes: {
-        'home': (context) => HomePage(title: _title),
+        'home': (context) => HomePage(
+              title: _title,
+              key: Key('HomePage'),
+            ),
       },
       title: _title,
       theme: ThemeData(
@@ -45,12 +48,11 @@ class MyApp extends StatelessWidget {
 class HomePage extends StatelessWidget {
   final String title;
 
-  HomePage({Key key, @required this.title}) : super(key: key);
+  HomePage({required Key key, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         title: Text(title),
       ),
@@ -58,7 +60,10 @@ class HomePage extends StatelessWidget {
         future: loadData(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return SessionView(kotobaList: snapshot.data);
+            return SessionView(
+                kotobaList: snapshot.data as List<Kotoba>,
+                //kotobaList: Kotoba.placeholderList(),
+                key: Key('SessionView'));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error'));
           } else {
@@ -80,10 +85,14 @@ class HomePage extends StatelessWidget {
     var data = await rootBundle.loadString('assets/kotoba.tsv');
     var parsedData =
         CsvToListConverter(fieldDelimiter: '\t', eol: '\n').convert(data);
-    var result = List<Kotoba>();
+    var result = List<Kotoba>.empty(growable: true);
     try {
       parsedData.forEach((element) {
-        result.add(Kotoba(kanji: element[0], hiragana: element[1], english: element[2], example: element[3]));
+        result.add(Kotoba(
+            kanji: element[0],
+            hiragana: element[1],
+            english: element[2],
+            example: element[3]));
       });
     } catch (e) {
       print(e);
